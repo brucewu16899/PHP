@@ -5,6 +5,7 @@
 + 10位的机器标识，10位的长度最多支持部署1024个节点。
 + 12位的计数序列号，序列号即一系列的自增id，可以支持同一节点同一毫秒生成多个ID序号，12位的计数序列号支持每个节点每毫秒产生4096个ID序号。
 
+代码1
 
 /**
  *  分布式 id 生成类     组成: <毫秒级时间戳+机器id+序列号>
@@ -55,3 +56,38 @@ class IdCreate
  //机器id
  $machineId = 1;
  $cast_id = IdCreate::createOnlyId($machineId);  
+ 
+ 
+ 代码2
+ 
+ class SnowFlake{
+    public function createID(){
+        //假设一个机器id
+        $machineId = 1234567890;
+
+        //41bit timestamp(毫秒)
+        $time = floor(microtime(true) * 1000);
+
+        //0bit 未使用
+        $suffix = 0;
+
+        //datacenterId  添加数据的时间
+        $base = decbin(pow(2,40) - 1 + $time);
+
+        //workerId  机器ID
+        $machineid = decbin(pow(2,9) - 1 + $machineId);
+
+        //毫秒类的计数
+        $random = mt_rand(1, pow(2,11)-1);
+
+        $random = decbin(pow(2,11)-1 + $random);         
+        //拼装所有数据
+        $base64 = $suffix.$base.$machineid.$random;
+        //将二进制转换int
+        $base64 = bindec($base64);
+
+        $id = sprintf('%.0f', $base64);
+
+        return $id;
+    }
+}
